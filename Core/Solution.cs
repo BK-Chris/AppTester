@@ -3,13 +3,32 @@ using System.Text.RegularExpressions;
 
 namespace Core
 {
+    /// <summary>
+    /// Represents a solution and provides methods to retrieve related information such as the project file path,
+    /// framework type, and executable path.
+    /// </summary>
     public class Solution
     {
         private readonly string SolutionPath;
         private readonly string CsprojPath;
         private readonly string FrameworkType;
+
+        /// <summary>
+        /// Gets the path of the executable for the solution if it exists.
+        /// </summary>
+        /// <remarks>
+        /// This property combines the expected folder structure to find the executable (.exe) file 
+        /// based on the .csproj file's path and the framework type.
+        /// </remarks>
+        /// <returns>Returns the full path to the executable file if it exists, otherwise <see cref="string.Empty"/>.</returns>
         public string ExecutablePath { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Solution"/> class.
+        /// </summary>
+        /// <param name="solutionPath">The path to the solution file.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the solution path is null or empty.</exception>
+        /// <exception cref="ArgumentException">Thrown when the solution file does not exist.</exception>
         public Solution(string solutionPath)
         {
             if (string.IsNullOrEmpty(solutionPath))
@@ -35,6 +54,7 @@ namespace Core
         /// <exception cref="Exception">Thrown when an unexpected error occurs.</exception>
         private string GetCsprojPath()
         {
+            string caughtAt = "GetCsprojPath()";
             string pattern = @"""[^""]*\.csproj""";
             Debug.WriteLine($"Regex Pattern: {pattern}");
 
@@ -59,18 +79,18 @@ namespace Core
             }
             catch (FileNotFoundException ex)
             {
-                Debug.WriteLine("Exception during getting Csproj Path\nFile not found: " + ex.Message);
-                Console.WriteLine("Exception during getting Csproj Path\nFile not found: " + ex.Message);
+                Debug.WriteLine($"Exception@[{caughtAt}]\nFile not found: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nFile not found: " + ex.Message);
             }
             catch (IOException ex)
             {
-                Debug.WriteLine("Exception during getting Csproj Path\nAn I/O error occurred: " + ex.Message);
-                Console.WriteLine("Exception during getting Csproj Path\nAn I/O error occurred: " + ex.Message);
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn I/O error occurred: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn I/O error occurred: " + ex.Message);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Exception during getting Csproj Path\nAn unexpected error occurred: " + ex.Message);
-                Console.WriteLine("Exception during getting Csproj Path\nAn unexpected error occurred: " + ex.Message);
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
             }
             return string.Empty;
         }
@@ -80,32 +100,136 @@ namespace Core
         /// </summary>
         /// <remarks>
         /// The method searches for pattern <TargetFramework>*</TargetFramework> to determine the framework used.
-        /// By default visual studio creates the project's build in the targetframework's folder.
+        /// By default, Visual Studio creates the project's build in the target framework's folder.
         /// </remarks>
-        /// <returns>Returns the frameworktype if it exists, otherwise null.</returns>
+        /// <returns>Returns the framework type if it exists, otherwise <see cref="string.Empty"/>.</returns>
         private string GetFrameworkType()
         {
-            throw new System.NotImplementedException();
+            string caughtAt = "GetFrameworkType()";
+            string pattern = @"<TargetFramework>(.*?)</TargetFramework>";
+            Debug.WriteLine($"Regex Pattern: {pattern}");
+
+            try
+            {
+                using (StreamReader sr = new(CsprojPath))
+                {
+                    string csprojFile = sr.ReadToEnd();
+                    Match match = Regex.Match(csprojFile, pattern);
+                    if (match.Success)
+                    {
+                        string frameworkType = match.Groups[1].Value;
+                        Debug.WriteLine(frameworkType);
+                        return frameworkType;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("The .csproj file does not have <TargetFramework> defined!");
+                        return string.Empty;
+                    }
+                };
+            }
+            catch (FileNotFoundException ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nFile not found: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nFile not found: " + ex.Message);
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn I/O error occurred: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn I/O error occurred: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
+            }
+            return string.Empty;
         }
 
         /// <summary>
         /// Determines if the project's build is an executable.
         /// </summary>
-        /// <remarks>The method searches for pattern <OutputType>*</OutputType> to determine if the project has and executable.</remarks>
-        /// <returns>Returns true if the project is executable otherwise false.</returns>
+        /// <remarks>
+        /// The method searches for the pattern <OutputType>*</OutputType> to determine if the project has an executable output.
+        /// </remarks>
+        /// <returns>Returns <see langword="true"/> if the project is executable, otherwise <see langword="false"/>.</returns>
         private bool IsExecutable()
         {
-            throw new System.NotImplementedException();
+            string caughtAt = "IsExecutable()";
+            string pattern = @"<OutputType>Exe</OutputType>";
+            Debug.WriteLine($"Regex Pattern: {pattern}");
+
+            try
+            {
+                using (StreamReader sr = new(CsprojPath))
+                {
+                    string csprojFile = sr.ReadToEnd();
+                    Match match = Regex.Match(csprojFile, pattern);
+                    if (match.Success)
+                    {
+                        Debug.WriteLine("The output is Exe!");
+                        return true;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("The .csproj file either does not have <OutputType> defined or is not an Executable!");
+                        Console.WriteLine("The .csproj file either does not have <OutputType> defined or is not an Executable!");
+                        return false;
+                    }
+                };
+            }
+            catch (FileNotFoundException ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nFile not found: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nFile not found: " + ex.Message);
+            }
+            catch (IOException ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn I/O error occurred: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn I/O error occurred: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
+            }
+            return false;
         }
 
         /// <summary>
-        /// Return's the executable's path if it exists combining the expected folder structure to find the exe in it.
+        /// Gets the path of the executable for the solution if it exists.
         /// </summary>
-        /// <remarks>The method uses the CsprojPath concatanated with FrameworkType and the executable's name.</remarks>
-        /// <returns>Returns the executable's path if it exists. Otherwise returns null.</returns>
+        /// <remarks>
+        /// This property combines the expected folder structure to find the executable (.exe) file 
+        /// based on the .csproj file's path and the framework type.
+        /// </remarks>
+        /// <returns>Returns the full path to the executable file if it exists, otherwise <see cref="string.Empty"/>.</returns>
         private string GetExecutablePath()
         {
-            throw new System.NotImplementedException();
+            if (string.IsNullOrEmpty(CsprojPath))
+            {
+                Debug.WriteLine("Could not found .csproj file!");
+                Console.WriteLine("Could not found .csproj file!");
+                return string.Empty;
+            }
+            if (string.IsNullOrEmpty(FrameworkType))
+            {
+                Debug.WriteLine("FrameworkType isn't defined!");
+                Console.WriteLine("FrameworkType isn't defined!");
+                return string.Empty;
+            }
+            if (!IsExecutable())
+            {
+                Debug.WriteLine("The solution does not provide an executable output!");
+                Console.WriteLine("The solution does not provide an executable output!");
+                return string.Empty;
+            }
+            string fileName = SolutionPath[SolutionPath.LastIndexOf('\\')..];
+            string executablePath = $"{CsprojPath[..(CsprojPath.LastIndexOf('\\') + 1)]}" +
+                $"bin\\Debug\\{FrameworkType}" +
+                $"{fileName[..fileName.LastIndexOf('.')]}.exe";
+            Debug.WriteLine(executablePath);
+            return executablePath;
         }
     }
 }
