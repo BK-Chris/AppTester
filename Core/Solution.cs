@@ -5,7 +5,8 @@ namespace Core
 {
     /// <summary>
     /// Represents a solution and provides methods to retrieve related information such as the project file path,
-    /// framework type, and executable path.
+    /// framework type, and executable path. The class also supports building the project and retrieving the executable path
+    /// if the build is successful. It attempts to build the project if it has not been built yet.
     /// </summary>
     public class Solution
     {
@@ -24,7 +25,8 @@ namespace Core
         public string ExecutablePath { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Solution"/> class.
+        /// Initializes a new instance of the <see cref="Solution"/> class. It attempts to build the solution and retrieve
+        /// related information such as the project file path, framework type, and executable path.
         /// </summary>
         /// <param name="solutionPath">The path to the solution file.</param>
         /// <exception cref="ArgumentNullException">Thrown when the solution path is null or empty.</exception>
@@ -36,9 +38,83 @@ namespace Core
             if (!File.Exists(solutionPath))
                 throw new ArgumentException($"{solutionPath} does not exists!");
             SolutionPath = solutionPath;
-            CsprojPath = GetCsprojPath();
-            FrameworkType = GetFrameworkType();
-            ExecutablePath = GetExecutablePath();
+
+            bool buildSuccess = BuildSolutionAsync().GetAwaiter().GetResult();
+
+            if (buildSuccess)
+            {
+                CsprojPath = GetCsprojPath();
+                FrameworkType = GetFrameworkType();
+                ExecutablePath = GetExecutablePath();
+            }
+            else
+            {
+                Debug.WriteLine("Build failed. Cannot retrieve executable path.");
+                Console.WriteLine("Build failed. Cannot retrieve executable path.");
+                CsprojPath = string.Empty;
+                FrameworkType = string.Empty;
+                ExecutablePath = string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Runs the dotnet build process in the background and returns a boolean indicating success.
+        /// </summary>
+        /// <remarks>
+        /// The build is run asynchronously in the background, and the method checks for success or failure.
+        /// </remarks>
+        /// <returns>Returns true if the build is successful, otherwise false.</returns>
+        public async Task<bool> BuildSolutionAsync()
+        {
+            string caughtAt = "BuildSolution()";
+            try
+            {
+                ProcessStartInfo processStartInfo = new()
+                {
+                    FileName = "dotnet",
+                    Arguments = $"build \"{SolutionPath}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using Process? process = Process.Start(processStartInfo);
+                if (process == null)
+                {
+                    Debug.WriteLine("Failed to start the build process.");
+                    Console.WriteLine("Failed to start the build process.");
+                    return false;
+                }
+
+                Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+                Task<string> errorTask = process.StandardError.ReadToEndAsync();
+
+                await Task.WhenAll(outputTask, errorTask);
+
+                await process.WaitForExitAsync();
+
+                string output = outputTask.Result;
+                string error = errorTask.Result;
+
+                if (process.ExitCode == 0)
+                {
+                    Debug.WriteLine("Build succeeded.");
+                    return true;
+                }
+                else
+                {
+                    Debug.WriteLine($"Build failed: {error}");
+                    Console.WriteLine($"Build failed: {error}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception@[{caughtAt}]\nAn error occurred during the build: " + ex.Message);
+                Console.WriteLine($"Exception@[{caughtAt}]\nAn error occurred during the build: " + ex.Message);
+                return false;
+            }
         }
 
         /// <summary>
