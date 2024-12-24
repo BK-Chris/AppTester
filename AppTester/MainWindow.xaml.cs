@@ -20,5 +20,38 @@ namespace AppTester
         {
             InitializeComponent();
         }
+
+        private void AddSolution_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void RunTests_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void AddFiles_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddFolder_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddManual_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void OverwritePreview_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void UpdatePreview_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
     }
 }

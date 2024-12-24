@@ -5,8 +5,126 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AppTester"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="AppTester" Height="600" Width="800" Foreground="White" Background="#FF362222" WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition Height="3"></RowDefinition> <!-- SplitContainer -->
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <Grid x:Name="TopGrid" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+              Background="{StaticResource AshBrown}" MaxHeight="100">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="AddSolutionButton"
+                    Style="{StaticResource LargeActionButtonStyle}"
+                    Content="Add Solution" Click="AddSolution_Click"/>
+                <Button x:Name="RunTestsButton"
+                    Style="{StaticResource LargeActionButtonStyle}" 
+                    Content="▶ Run Test(s)" Click="RunTests_Click"
+                    Background="{StaticResource HighlightTeal}" Foreground="{StaticResource White}"/>
+            </StackPanel>
+            <TextBox x:Name="PathTextBoxButton" Grid.Column="1"
+                    Style="{StaticResource PathTextBoxStyle}" Text="Choose an (*.sln) file first!"/>
+        </Grid>
 
+        <Grid x:Name="InputGrid" Grid.Row="1" Grid.Column="0"
+              Background="{StaticResource AshBrown}" Margin="0,10,10,0">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Row="0" Style="{StaticResource LabelStyle}" Content="Input(s)"/>
+            
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button x:Name="AddInputFilesButton"
+                    Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)"
+                    Click="AddFiles_Click" Tag="input"/>
+                <Button x:Name="AddInputFolderButton"
+                    Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder"
+                    Click="AddFolder_Click" Tag="input"/>
+                <Button x:Name="AddInputManualButton"
+                    Style="{StaticResource SmallActionButtonStyle}" Content="New Input"
+                    Click="AddManual_Click" Tag="input"/>
+            </StackPanel>
+            
+            <TextBox Name="InputPathsTextBox" Grid.Row="2" Style="{StaticResource PathsTextBoxStyle}"/>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal">
+                <Label Style="{StaticResource LabelStyle}" Content="Preview"/>
+                <Button x:Name="OverwriteSelectedInputButton"
+                    Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite"
+                    Click="OverwritePreview_Click" Tag="input"/>
+            </StackPanel>
+
+            <TextBox Name="PreviewInputTextBox" Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}"
+                     TextChanged="UpdatePreview_TextChanged" Tag="input"/>
+        </Grid>
+
+        <Grid x:Name="OutputGrid" Grid.Row="1" Grid.Column="1"
+              Background="{StaticResource AshBrown}" Margin="10,10,0,0">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Style="{StaticResource LabelStyle}" Content="Expected Output(s)"/>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button x:Name="AddOutputFilesButton"
+            Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)"
+            Click="AddFiles_Click" Tag="output"/>
+                <Button x:Name="AddOutputFolderButton"
+            Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder"
+            Click="AddFolder_Click" Tag="output"/>
+                <Button x:Name="AddOutputManualButton"
+            Style="{StaticResource SmallActionButtonStyle}" Content="New Output"
+            Click="AddManual_Click" Tag="output"/>
+            </StackPanel>
+
+            <TextBox Name="OutputPathsTextBox" Grid.Row="2" Style="{StaticResource PathsTextBoxStyle}"/>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal">
+                <Label Style="{StaticResource LabelStyle}" Content="Preview"/>
+                <Button x:Name="OverwriteSelectedOutputButton"
+            Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite"
+            Click="OverwritePreview_Click" Tag="output"/>
+            </StackPanel>
+
+            <TextBox Name="PreviewOutputTextBox" Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}"
+             TextChanged="UpdatePreview_TextChanged" Tag="output"/>
+        </Grid>
+
+        <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                      Height="3" Background="{StaticResource White}"/>
+
+        <TextBox x:Name="ConsoleOutputTextBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                 Style="{StaticResource ConsoleOutputTextBoxStyle}"
+                 Text="Welcome to AppTester!&#x0a;How to use:&#x0a;- Select a solution using the Add Solution button.&#x0a;&#9;It will try to build the project and notify whether it succeeded.&#x0a;- Select your input(s) and output(s) with Add File and Add Folder buttons.&#x0a;&#9;You can also create manual input(s) using New Input/Output button.&#x0a;&#9;Then you can edit the input/output in preview textbox.&#x0a;- Clicking on overwrite will overwrite the selected file with the preview's content.&#x0a;- The input(s) and the expected output(s) must be in the same order in order to work as expected.&#x0a;&#9;Note: It is a good idea to name the testcases in alphabetic or numbered order.&#x0a;Finally click on Run Test(s) button to run the testcases againts your solution."/>
     </Grid>
 </Window>
