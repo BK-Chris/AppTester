@@ -1,13 +1,7 @@
-﻿using System.Text;
+﻿using Core;
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AppTester
 {
@@ -16,13 +10,67 @@ namespace AppTester
     /// </summary>
     public partial class MainWindow : Window
     {
+        public Solution? Solution;
         public MainWindow()
         {
             InitializeComponent();
+
+            Console.SetOut(new TextBoxWriter(ConsoleOutputTextBox));
+            Console.WriteLine(Properties.Resources.WelcomeString);
         }
+        // Functions
+        private static string? GetFilePath(string ext, bool multiselect)
+        {
+            OpenFileDialog dialog = new()
+            {
+                Filter = $"All files(*.{ext}) | *.{ext}",
+                Multiselect = multiselect
+            };
+            if (dialog.ShowDialog().HasValue)
+            {
+                string path = dialog.FileName;
+                Console.WriteLine($"Selected {path}");
+                return path;
+            }
+            else
+            {
+                Console.WriteLine($"No file was selected!");
+                return null;
+            }
+        }
+        private static string? GetFolderPath()
+        {
+            OpenFolderDialog dialog = new();
+            if (dialog.ShowDialog().HasValue)
+            {
+                string path = dialog.SafeFolderName;
+                Console.WriteLine($"Selected {path}");
+                return path;
+            }
+            else
+            {
+                Console.WriteLine($"No folder was selected!");
+                return null;
+            }
+        }
+
+
+        // Eventlisteners
 
         private void AddSolution_Click(object sender, RoutedEventArgs e)
         {
+            string? solutionPath = GetFilePath("sln", false);
+            if (solutionPath == null)
+                return;
+            try
+            {
+                Solution = new Solution(solutionPath);
+                SolutionPathTextBox.Text = solutionPath;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private void RunTests_Click(object sender, RoutedEventArgs e)

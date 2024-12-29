@@ -59,5 +59,22 @@ namespace AppTester.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome to AppTester!
+        ///How to use:
+        ///- Select a solution using the Add Solution button.
+        ///    It will try to build the project and notify whether it succeeded.
+        ///- Select your input(s) and output(s) with Add File and Add Folder buttons.
+        ///    You can also create manual input(s) using New Input/Output button.
+        ///    Then you can edit the input/output in preview textbox.
+        ///- Clicking on overwrite will overwrite the selected file with the preview&apos;s content.
+        ///- The input(s) and the expected output(s) must be in the sa [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string WelcomeString {
+            get {
+                return ResourceManager.GetString("WelcomeString", resourceCulture);
+            }
+        }
     }
 }

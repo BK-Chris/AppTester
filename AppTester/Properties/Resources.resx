@@ -117,4 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="WelcomeString" xml:space="preserve">
+    <value>Welcome to AppTester!
+How to use:
+- Select a solution using the Add Solution button.
+    It will try to build the project and notify whether it succeeded.
+- Select your input(s) and output(s) with Add File and Add Folder buttons.
+    You can also create manual input(s) using New Input/Output button.
+    Then you can edit the input/output in preview textbox.
+- Clicking on overwrite will overwrite the selected file with the preview's content.
+- The input(s) and the expected output(s) must be in the same order in order to work as expected.
+    Note: It is a good idea to name the testcases in alphabetic or numbered order.
+Finally, click on Run Test(s) button to run the testcases against your solution.</value>
+  </data>
 </root>

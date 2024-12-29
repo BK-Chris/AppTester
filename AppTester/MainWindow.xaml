@@ -40,7 +40,7 @@
                     Content="▶ Run Test(s)" Click="RunTests_Click"
                     Background="{StaticResource HighlightTeal}" Foreground="{StaticResource White}"/>
             </StackPanel>
-            <TextBox x:Name="PathTextBoxButton" Grid.Column="1"
+            <TextBox x:Name="SolutionPathTextBox" Grid.Column="1"
                     Style="{StaticResource PathTextBoxStyle}" Text="Choose an (*.sln) file first!"/>
         </Grid>
 
@@ -82,7 +82,7 @@
                      TextChanged="UpdatePreview_TextChanged" Tag="input"/>
         </Grid>
 
-        <Grid x:Name="OutputGrid" Grid.Row="1" Grid.Column="1"
+        <Grid Grid.Row="1" Grid.Column="1" x:Name="OutputGrid" 
               Background="{StaticResource AshBrown}" Margin="10,10,0,0">
 
             <Grid.RowDefinitions>
@@ -107,7 +107,7 @@
             Click="AddManual_Click" Tag="output"/>
             </StackPanel>
 
-            <TextBox Name="OutputPathsTextBox" Grid.Row="2" Style="{StaticResource PathsTextBoxStyle}"/>
+            <TextBox Grid.Row="2" Name="OutputPathsTextBox" Style="{StaticResource PathsTextBoxStyle}"/>
 
             <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label Style="{StaticResource LabelStyle}" Content="Preview"/>
@@ -116,15 +116,14 @@
             Click="OverwritePreview_Click" Tag="output"/>
             </StackPanel>
 
-            <TextBox Name="PreviewOutputTextBox" Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}"
+            <TextBox Grid.Row="4" Name="PreviewOutputTextBox" Style="{StaticResource PreviewTextBoxStyle}"
              TextChanged="UpdatePreview_TextChanged" Tag="output"/>
         </Grid>
 
         <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                       Height="3" Background="{StaticResource White}"/>
 
-        <TextBox x:Name="ConsoleOutputTextBox" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                 Style="{StaticResource ConsoleOutputTextBoxStyle}"
-                 Text="Welcome to AppTester!&#x0a;How to use:&#x0a;- Select a solution using the Add Solution button.&#x0a;&#9;It will try to build the project and notify whether it succeeded.&#x0a;- Select your input(s) and output(s) with Add File and Add Folder buttons.&#x0a;&#9;You can also create manual input(s) using New Input/Output button.&#x0a;&#9;Then you can edit the input/output in preview textbox.&#x0a;- Clicking on overwrite will overwrite the selected file with the preview's content.&#x0a;- The input(s) and the expected output(s) must be in the same order in order to work as expected.&#x0a;&#9;Note: It is a good idea to name the testcases in alphabetic or numbered order.&#x0a;Finally click on Run Test(s) button to run the testcases againts your solution."/>
+        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ConsoleOutputTextBox"
+                 Style="{StaticResource ConsoleOutputTextBoxStyle}"/>
     </Grid>
 </Window>

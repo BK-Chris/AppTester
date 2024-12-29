@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Core
@@ -11,8 +12,8 @@ namespace Core
     public class Solution
     {
         private readonly string SolutionPath;
-        private readonly string CsprojPath;
-        private readonly string FrameworkType;
+        private readonly string? CsprojPath = null;
+        private readonly string? FrameworkType = null;
 
         /// <summary>
         /// Gets the path of the executable for the solution if it exists.
@@ -22,7 +23,7 @@ namespace Core
         /// based on the .csproj file's path and the framework type.
         /// </remarks>
         /// <returns>Returns the full path to the executable file if it exists, otherwise <see cref="string.Empty"/>.</returns>
-        public string ExecutablePath { get; private set; }
+        public string? ExecutablePath { get; private set; } = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Solution"/> class. It attempts to build the solution and retrieve
@@ -39,7 +40,7 @@ namespace Core
                 throw new ArgumentException($"{solutionPath} does not exists!");
             SolutionPath = solutionPath;
 
-            bool buildSuccess = BuildSolutionAsync().GetAwaiter().GetResult();
+            bool buildSuccess = BuildSolution();
 
             if (buildSuccess)
             {
@@ -51,20 +52,14 @@ namespace Core
             {
                 Debug.WriteLine("Build failed. Cannot retrieve executable path.");
                 Console.WriteLine("Build failed. Cannot retrieve executable path.");
-                CsprojPath = string.Empty;
-                FrameworkType = string.Empty;
-                ExecutablePath = string.Empty;
             }
         }
 
         /// <summary>
-        /// Runs the dotnet build process in the background and returns a boolean indicating success.
+        /// Runs the dotnet build process and returns a boolean indicating success.
         /// </summary>
-        /// <remarks>
-        /// The build is run asynchronously in the background, and the method checks for success or failure.
-        /// </remarks>
         /// <returns>Returns true if the build is successful, otherwise false.</returns>
-        public async Task<bool> BuildSolutionAsync()
+        public bool BuildSolution()
         {
             string caughtAt = "BuildSolution()";
             try
@@ -87,19 +82,16 @@ namespace Core
                     return false;
                 }
 
-                Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
-                Task<string> errorTask = process.StandardError.ReadToEndAsync();
+                // Read the output and error streams synchronously
+                string output = process.StandardOutput.ReadToEnd();
+                string error = process.StandardError.ReadToEnd();
 
-                await Task.WhenAll(outputTask, errorTask);
-
-                await process.WaitForExitAsync();
-
-                string output = outputTask.Result;
-                string error = errorTask.Result;
+                process.WaitForExit();
 
                 if (process.ExitCode == 0)
                 {
                     Debug.WriteLine("Build succeeded.");
+                    Console.WriteLine(output); // Optional: Log the success output.
                     return true;
                 }
                 else
@@ -117,6 +109,8 @@ namespace Core
             }
         }
 
+
+
         /// <summary>
         /// Fetches the Csproj path found in the solution file specified by SolutionPath.
         /// </summary>
@@ -128,7 +122,7 @@ namespace Core
         /// <exception cref="FileNotFoundException">Thrown when the solution file is not found.</exception>
         /// <exception cref="IOException">Thrown when an I/O error occurs while reading the file.</exception>
         /// <exception cref="Exception">Thrown when an unexpected error occurs.</exception>
-        private string GetCsprojPath()
+        private string? GetCsprojPath()
         {
             string caughtAt = "GetCsprojPath()";
             string pattern = @"""[^""]*\.csproj""";
@@ -149,7 +143,8 @@ namespace Core
                     else
                     {
                         Debug.WriteLine("The .sln file does not have a .csproj path defined!");
-                        return string.Empty;
+                        Console.WriteLine("The .sln file does not have a .csproj path defined!");
+                        return null;
                     }
                 };
             }
@@ -168,7 +163,7 @@ namespace Core
                 Debug.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
                 Console.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
             }
-            return string.Empty;
+            return null;
         }
 
         /// <summary>
@@ -179,7 +174,7 @@ namespace Core
         /// By default, Visual Studio creates the project's build in the target framework's folder.
         /// </remarks>
         /// <returns>Returns the framework type if it exists, otherwise <see cref="string.Empty"/>.</returns>
-        private string GetFrameworkType()
+        private string? GetFrameworkType()
         {
             string caughtAt = "GetFrameworkType()";
             string pattern = @"<TargetFramework>(.*?)</TargetFramework>";
@@ -219,7 +214,7 @@ namespace Core
                 Debug.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
                 Console.WriteLine($"Exception@[{caughtAt}]\nAn unexpected error occurred: " + ex.Message);
             }
-            return string.Empty;
+            return null;
         }
 
         /// <summary>
@@ -280,25 +275,25 @@ namespace Core
         /// based on the .csproj file's path and the framework type.
         /// </remarks>
         /// <returns>Returns the full path to the executable file if it exists, otherwise <see cref="string.Empty"/>.</returns>
-        private string GetExecutablePath()
+        private string? GetExecutablePath()
         {
             if (string.IsNullOrEmpty(CsprojPath))
             {
                 Debug.WriteLine("Could not found .csproj file!");
                 Console.WriteLine("Could not found .csproj file!");
-                return string.Empty;
+                return null;
             }
             if (string.IsNullOrEmpty(FrameworkType))
             {
                 Debug.WriteLine("FrameworkType isn't defined!");
                 Console.WriteLine("FrameworkType isn't defined!");
-                return string.Empty;
+                return null;
             }
             if (!IsExecutable())
             {
                 Debug.WriteLine("The solution does not provide an executable output!");
                 Console.WriteLine("The solution does not provide an executable output!");
-                return string.Empty;
+                return null;
             }
             string fileName = SolutionPath[SolutionPath.LastIndexOf('\\')..];
             string executablePath = $"{CsprojPath[..(CsprojPath.LastIndexOf('\\') + 1)]}" +
