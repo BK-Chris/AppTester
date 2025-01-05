@@ -61,6 +61,43 @@ namespace AppTester.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to fetch the executable&apos;s path!.
+        /// </summary>
+        internal static string CouldNotGetExecutablePathString {
+            get {
+                return ResourceManager.GetString("CouldNotGetExecutablePathString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The input and output&apos;s count does not match!
+        ///Remove and rearrange from either list to match the inputs and the expected outputs count..
+        /// </summary>
+        internal static string InputOutputMismatchString {
+            get {
+                return ResourceManager.GetString("InputOutputMismatchString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a file to preview or modify the content..
+        /// </summary>
+        internal static string NoSelectionPreviewString {
+            get {
+                return ResourceManager.GetString("NoSelectionPreviewString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose an (*.sln) file first!.
+        /// </summary>
+        internal static string SolutionPathString {
+            get {
+                return ResourceManager.GetString("SolutionPathString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Welcome to AppTester!
         ///How to use:
         ///- Select a solution using the Add Solution button.

@@ -1,129 +1,129 @@
 ﻿<Window x:Class="AppTester.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AppTester"
-        mc:Ignorable="d"
-        Title="AppTester" Height="600" Width="800" Foreground="White" Background="#FF362222" WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow">
+        Title="AppTester" Height="600" Width="800" Foreground="White" Background="#FF362222" 
+        WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow">
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <local:MainViewModel x:Key="MainViewModel" />
         </ResourceDictionary>
     </Window.Resources>
+
+    <Window.DataContext>
+        <StaticResource ResourceKey="MainViewModel" />
+    </Window.DataContext>
+
     <Grid Margin="5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="2*"></RowDefinition>
-            <RowDefinition Height="3"></RowDefinition> <!-- SplitContainer -->
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="3" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"></ColumnDefinition>
-            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        <Grid x:Name="TopGrid" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
-              Background="{StaticResource AshBrown}" MaxHeight="100">
+
+        <!-- Top Grid -->
+        <Grid x:Name="TopGrid" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource AshBrown}" MaxHeight="100">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Button x:Name="AddSolutionButton"
-                    Style="{StaticResource LargeActionButtonStyle}"
-                    Content="Add Solution" Click="AddSolution_Click"/>
-                <Button x:Name="RunTestsButton"
-                    Style="{StaticResource LargeActionButtonStyle}" 
-                    Content="▶ Run Test(s)" Click="RunTests_Click"
-                    Background="{StaticResource HighlightTeal}" Foreground="{StaticResource White}"/>
+                <Button Style="{StaticResource LargeActionButtonStyle}" Content="Add Solution" Command="{Binding AddSolutionCommand}" />
+                <Button Style="{StaticResource LargeActionButtonStyle}" Content="▶ Run Test(s)" Command="{Binding RunTestsCommand}" Background="{StaticResource HighlightTeal}" Foreground="{StaticResource White}" />
             </StackPanel>
-            <TextBox x:Name="SolutionPathTextBox" Grid.Column="1"
-                    Style="{StaticResource PathTextBoxStyle}" Text="Choose an (*.sln) file first!"/>
+            <TextBox Grid.Column="1" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SolutionPath}" />
         </Grid>
 
-        <Grid x:Name="InputGrid" Grid.Row="1" Grid.Column="0"
-              Background="{StaticResource AshBrown}" Margin="0,10,10,0">
-            
+        <!-- Input Grid -->
+        <Grid x:Name="InputGrid" Grid.Row="1" Grid.Column="0" Background="{StaticResource AshBrown}" Margin="0,10,10,0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="2*"></RowDefinition>
-            </Grid.RowDefinitions>
-            
-            <Label Grid.Row="0" Style="{StaticResource LabelStyle}" Content="Input(s)"/>
-            
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <Button x:Name="AddInputFilesButton"
-                    Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)"
-                    Click="AddFiles_Click" Tag="input"/>
-                <Button x:Name="AddInputFolderButton"
-                    Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder"
-                    Click="AddFolder_Click" Tag="input"/>
-                <Button x:Name="AddInputManualButton"
-                    Style="{StaticResource SmallActionButtonStyle}" Content="New Input"
-                    Click="AddManual_Click" Tag="input"/>
-            </StackPanel>
-            
-            <TextBox Name="InputPathsTextBox" Grid.Row="2" Style="{StaticResource PathsTextBoxStyle}"/>
-
-            <StackPanel Grid.Row="3" Orientation="Horizontal">
-                <Label Style="{StaticResource LabelStyle}" Content="Preview"/>
-                <Button x:Name="OverwriteSelectedInputButton"
-                    Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite"
-                    Click="OverwritePreview_Click" Tag="input"/>
-            </StackPanel>
-
-            <TextBox Name="PreviewInputTextBox" Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}"
-                     TextChanged="UpdatePreview_TextChanged" Tag="input"/>
-        </Grid>
-
-        <Grid Grid.Row="1" Grid.Column="1" x:Name="OutputGrid" 
-              Background="{StaticResource AshBrown}" Margin="10,10,0,0">
-
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="auto"></RowDefinition>
-                <RowDefinition Height="2*"></RowDefinition>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="2*" />
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Style="{StaticResource LabelStyle}" Content="Expected Output(s)"/>
-
+            <Label Grid.Row="0" Style="{StaticResource LabelStyle}" Content="Input(s)" />
             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <Button x:Name="AddOutputFilesButton"
-            Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)"
-            Click="AddFiles_Click" Tag="output"/>
-                <Button x:Name="AddOutputFolderButton"
-            Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder"
-            Click="AddFolder_Click" Tag="output"/>
-                <Button x:Name="AddOutputManualButton"
-            Style="{StaticResource SmallActionButtonStyle}" Content="New Output"
-            Click="AddManual_Click" Tag="output"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)" Command="{Binding AddFilesCommand}" CommandParameter="input"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder" Command="{Binding AddFolderCommand}" CommandParameter="input"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="New File" CommandParameter="input"/>
             </StackPanel>
-
-            <TextBox Grid.Row="2" Name="OutputPathsTextBox" Style="{StaticResource PathsTextBoxStyle}"/>
-
+            <ListBox Grid.Row="2" ItemsSource="{Binding InputPaths}" Margin="10" SelectionMode="Single">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Preview" Command="{Binding PreviewCommand}" CommandParameter="input"/>
+                        <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}" CommandParameter="input"/>
+                        <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}" CommandParameter="input"/>
+                        <MenuItem Header="Delete" Command="{Binding DeleteCommand}" CommandParameter="input"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
             <StackPanel Grid.Row="3" Orientation="Horizontal">
-                <Label Style="{StaticResource LabelStyle}" Content="Preview"/>
-                <Button x:Name="OverwriteSelectedOutputButton"
-            Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite"
-            Click="OverwritePreview_Click" Tag="output"/>
+                <Label Style="{StaticResource LabelStyle}" Content="Preview" />
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite" Command="{Binding OverwriteCommand}" CommandParameter="input"/>
+                <TextBox x:Name="PreviewInputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedInputPath}" />
             </StackPanel>
-
-            <TextBox Grid.Row="4" Name="PreviewOutputTextBox" Style="{StaticResource PreviewTextBoxStyle}"
-             TextChanged="UpdatePreview_TextChanged" Tag="output"/>
+            <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}" />
         </Grid>
 
-        <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                      Height="3" Background="{StaticResource White}"/>
+        <!-- Expected Output Grid -->
+        <Grid x:Name="OutputGrid" Grid.Row="1" Grid.Column="1" Background="{StaticResource AshBrown}" Margin="0,10,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
 
-        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ConsoleOutputTextBox"
-                 Style="{StaticResource ConsoleOutputTextBoxStyle}"/>
+            <Label Grid.Row="0" Style="{StaticResource LabelStyle}" Content="Expected output(s)" />
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)" Command="{Binding AddFilesCommand}" CommandParameter="output"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder" Command="{Binding AddFolderCommand}" CommandParameter="output"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="New File" CommandParameter="output"/>
+            </StackPanel>
+            <ListBox Grid.Row="2" ItemsSource="{Binding OutputPaths}" Margin="10" SelectionMode="Single">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Preview" Command="{Binding PreviewCommand}" CommandParameter="output"/>
+                        <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}" CommandParameter="output"/>
+                        <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}" CommandParameter="output"/>
+                        <MenuItem Header="Delete" Command="{Binding DeleteCommand}" CommandParameter="output"/>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
+            <StackPanel Grid.Row="3" Orientation="Horizontal">
+                <Label Style="{StaticResource LabelStyle}" Content="Preview" />
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite" Command="{Binding OverwriteCommand}" CommandParameter="output"/>
+                <TextBox x:Name="PreviewOutputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedOutputPath}" />
+            </StackPanel>
+            <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}" />
+        </Grid>
+
+        <!-- Other Grids -->
+
+        <GridSplitter Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="3" Background="{StaticResource White}" />
+        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="ConsoleOutputTextBox" Style="{StaticResource ConsoleOutputTextBoxStyle}" />
     </Grid>
 </Window>

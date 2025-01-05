@@ -117,6 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CouldNotGetExecutablePathString" xml:space="preserve">
+    <value>Failed to fetch the executable's path!</value>
+  </data>
+  <data name="InputOutputMismatchString" xml:space="preserve">
+    <value>The input and output's count does not match!
+Remove and rearrange from either list to match the inputs and the expected outputs count.</value>
+  </data>
+  <data name="NoSelectionPreviewString" xml:space="preserve">
+    <value>Select a file to preview or modify the content.</value>
+  </data>
+  <data name="SolutionPathString" xml:space="preserve">
+    <value>Choose an (*.sln) file first!</value>
+  </data>
   <data name="WelcomeString" xml:space="preserve">
     <value>Welcome to AppTester!
 How to use:
