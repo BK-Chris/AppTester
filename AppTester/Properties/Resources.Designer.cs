@@ -70,6 +70,15 @@ namespace AppTester.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an error building the solution or could not get executable path!.
+        /// </summary>
+        internal static string ErrorBuildingOrFetchingPathsInSolutionString {
+            get {
+                return ResourceManager.GetString("ErrorBuildingOrFetchingPathsInSolutionString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The input and output&apos;s count does not match!
         ///Remove and rearrange from either list to match the inputs and the expected outputs count..
         /// </summary>

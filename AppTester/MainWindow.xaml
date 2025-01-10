@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:AppTester"
         Title="AppTester" Height="600" Width="800" Foreground="White" Background="#FF362222" 
-        WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow">
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="ThreeDBorderWindow"
+        Icon="/Resources/console_tester_icon.ico" WindowState="Maximized">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -57,9 +59,12 @@
             <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)" Command="{Binding AddFilesCommand}" CommandParameter="input"/>
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder" Command="{Binding AddFolderCommand}" CommandParameter="input"/>
-                <Button Style="{StaticResource SmallActionButtonStyle}" Content="New File" CommandParameter="input"/>
             </StackPanel>
-            <ListBox Grid.Row="2" ItemsSource="{Binding InputPaths}" Margin="10" SelectionMode="Single">
+            <ListBox Grid.Row="2"
+                     ItemsSource="{Binding InputPaths}"
+                     SelectedItem="{Binding SelectedInputPath}"
+                     MouseDoubleClick="ListBox_MouseDoubleClick_Input"
+                     Margin="10" SelectionMode="Single" >
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" />
@@ -76,10 +81,13 @@
             </ListBox>
             <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label Style="{StaticResource LabelStyle}" Content="Preview" />
-                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite" Command="{Binding OverwriteCommand}" CommandParameter="input"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite"
+                        Command="{Binding OverwriteCommand}"
+                  CommandParameter="input"/>
                 <TextBox x:Name="PreviewInputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedInputPath}" />
             </StackPanel>
-            <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}" />
+            <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}" 
+                     Text="{Binding SelectedInputPreview}"/>
         </Grid>
 
         <!-- Expected Output Grid -->
@@ -96,9 +104,12 @@
             <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)" Command="{Binding AddFilesCommand}" CommandParameter="output"/>
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder" Command="{Binding AddFolderCommand}" CommandParameter="output"/>
-                <Button Style="{StaticResource SmallActionButtonStyle}" Content="New File" CommandParameter="output"/>
             </StackPanel>
-            <ListBox Grid.Row="2" ItemsSource="{Binding OutputPaths}" Margin="10" SelectionMode="Single">
+            <ListBox Grid.Row="2"
+                     ItemsSource="{Binding OutputPaths}"
+                     SelectedItem="{Binding SelectedOutputPath}"
+                     MouseDoubleClick="ListBox_MouseDoubleClick_Output"
+                     Margin="10" SelectionMode="Single">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" />
@@ -118,7 +129,8 @@
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite" Command="{Binding OverwriteCommand}" CommandParameter="output"/>
                 <TextBox x:Name="PreviewOutputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedOutputPath}" />
             </StackPanel>
-            <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}" />
+            <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}"
+                     Text="{Binding SelectedOutputPreview}"/>
         </Grid>
 
         <!-- Other Grids -->

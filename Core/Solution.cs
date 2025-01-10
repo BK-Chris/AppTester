@@ -12,6 +12,7 @@ namespace Core
     public class Solution
     {
         private readonly string SolutionPath;
+        public readonly bool IsBuilt;
         private readonly string? CsprojPath = null;
         private readonly string? FrameworkType = null;
 
@@ -40,9 +41,9 @@ namespace Core
                 throw new ArgumentException($"{solutionPath} does not exists!");
             SolutionPath = solutionPath;
 
-            bool buildSuccess = BuildSolution();
+            IsBuilt = BuildSolution();
 
-            if (buildSuccess)
+            if (IsBuilt)
             {
                 CsprojPath = GetCsprojPath();
                 FrameworkType = GetFrameworkType();

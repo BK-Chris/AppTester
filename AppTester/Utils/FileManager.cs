@@ -1,11 +1,13 @@
 ﻿using Microsoft.Win32;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace AppTester.Utils
 {
     public static class FileManager
     {
+        // File methods
         public static string GetFile(string extension)
         {
             OpenFileDialog dialog = new()
@@ -67,6 +69,36 @@ namespace AppTester.Utils
             {
                 Console.WriteLine(ex.Message);
                 return [];
+            }
+        }
+
+        public static bool ConfirmOverwrite(string fileToOverwrite)
+        {
+            MessageBoxResult result = MessageBox.Show(
+                $"Are you sure you want to overwrite {fileToOverwrite}?",
+                "Confirm Overwrite",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning
+            );
+
+            return result == MessageBoxResult.Yes;
+        }
+
+        public static void OverWrite(string filePath, string newText)
+        {
+            if (!File.Exists(filePath))
+                return;
+            if (!ConfirmOverwrite(filePath))
+                return;
+            try
+            {
+                using StreamWriter newContent = new(filePath);
+                newContent.Write(newText);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
     }

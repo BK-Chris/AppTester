@@ -120,6 +120,9 @@
   <data name="CouldNotGetExecutablePathString" xml:space="preserve">
     <value>Failed to fetch the executable's path!</value>
   </data>
+  <data name="ErrorBuildingOrFetchingPathsInSolutionString" xml:space="preserve">
+    <value>There was an error building the solution or could not get executable path!</value>
+  </data>
   <data name="InputOutputMismatchString" xml:space="preserve">
     <value>The input and output's count does not match!
 Remove and rearrange from either list to match the inputs and the expected outputs count.</value>

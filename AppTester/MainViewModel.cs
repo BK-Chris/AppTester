@@ -2,6 +2,7 @@
 using Core;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -13,6 +14,8 @@ namespace AppTester
         private string _selectedSolution = Properties.Resources.SolutionPathString;
         private string _selectedInputPath = Properties.Resources.NoSelectionPreviewString;
         private string _selectedOutputPath = Properties.Resources.NoSelectionPreviewString;
+        private string _selectedInputPreviewItem = Properties.Resources.NoSelectionPreviewString;
+        private string _selectedOutputPreviewItem = Properties.Resources.NoSelectionPreviewString;
         public Solution? SolutionObj;
 
         public ObservableCollection<string> InputPaths { get; set; }
@@ -54,6 +57,32 @@ namespace AppTester
                 }
             }
         }
+        public string SelectedInputPreview
+        {
+            get => _selectedInputPreviewItem;
+            set
+            {
+                if (_selectedInputPreviewItem != value)
+                {
+                    _selectedInputPreviewItem = value;
+                    OnPropertyChanged();
+                    ((RelayCommand)OverwriteCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+        public string SelectedOutputPreview
+        {
+            get => _selectedOutputPreviewItem;
+            set
+            {
+                if (_selectedOutputPreviewItem != value)
+                {
+                    _selectedOutputPreviewItem = value;
+                    OnPropertyChanged();
+                    ((RelayCommand)OverwriteCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
@@ -72,8 +101,8 @@ namespace AppTester
 
         public MainViewModel()
         {
-            InputPaths = new ObservableCollection<string>();
-            OutputPaths = new ObservableCollection<string>();
+            InputPaths = [];
+            OutputPaths = [];
 
             // Initialize commands
             // TopGrid
@@ -83,7 +112,7 @@ namespace AppTester
             // InputGrid and OutputGrid
             AddFilesCommand = new RelayCommand(AddFiles);
             AddFolderCommand = new RelayCommand(AddFolder);
-            OverwriteCommand = new RelayCommand(OverwritePreview);
+            OverwriteCommand = new RelayCommand(OverwritePreview, CanExecuteOverwrite);
 
             // List interactions
             PreviewCommand = new RelayCommand(PreviewHandler);
@@ -109,15 +138,17 @@ namespace AppTester
         {
             try
             {
+                SolutionObj = new Solution(SolutionPath);
+
+                if (SolutionObj.ExecutablePath is null)
+                {
+                    Console.WriteLine(Properties.Resources.CouldNotGetExecutablePathString);
+                    return;
+                }
+
                 if (InputPaths.Count != OutputPaths.Count)
                 {
                     Console.WriteLine(Properties.Resources.InputOutputMismatchString);
-                    return;
-                }
-                SolutionObj = new Solution(SolutionPath);
-                if(SolutionObj.ExecutablePath is null)
-                {
-                    Console.WriteLine(Properties.Resources.CouldNotGetExecutablePathString);
                     return;
                 }
 
@@ -136,19 +167,16 @@ namespace AppTester
 
         private void AddFiles(object parameter)
         {
-            string? whichGrid = parameter.ToString();
-            if (string.IsNullOrEmpty(whichGrid))
-                return;
-
             string[] files = FileManager.GetFiles("txt");
-            if (string.Compare(whichGrid, "input", StringComparison.InvariantCultureIgnoreCase) == 0)
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
                 foreach (string file in files)
                 {
                     InputPaths.Add(file);
                 }
             }
-            else
+
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
                 foreach (string file in files)
                 {
@@ -159,19 +187,16 @@ namespace AppTester
 
         private void AddFolder(object parameter)
         {
-            string? whichGrid = parameter.ToString();
-            if (string.IsNullOrEmpty(whichGrid))
-                return;
-
             string[] files = FileManager.GetFilesFromFolder("txt");
-            if (string.Compare(whichGrid, "input", StringComparison.InvariantCultureIgnoreCase) == 0)
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
                 foreach (string file in files)
                 {
                     InputPaths.Add(file);
                 }
             }
-            else
+
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
                 foreach (string file in files)
                 {
@@ -181,25 +206,100 @@ namespace AppTester
         }
         private void OverwritePreview(object parameter)
         {
-            // Logic for overwriting preview
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                FileManager.OverWrite(SelectedInputPath, SelectedInputPreview);
+            }
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                FileManager.OverWrite(SelectedOutputPath, SelectedOutputPreview);
+            }
         }
+
 
         private void PreviewHandler(object parameter)
         {
-            throw new NotImplementedException();
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                Console.WriteLine(SelectedInputPath);
+                try
+                {
+                    using StreamReader inputFile = new(SelectedInputPath);
+                    SelectedInputPreview = inputFile.ReadToEnd();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                Console.WriteLine(SelectedOutputPath);
+                try
+                {
+                    using StreamReader outputFile = new(SelectedOutputPath);
+                    SelectedOutputPreview = outputFile.ReadToEnd();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
         }
         private void MoveUpHandler(object parameter)
         {
-            throw new NotImplementedException();
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                Utilities.MoveUpElementInAList(InputPaths, SelectedInputPath);
+            }
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                Utilities.MoveUpElementInAList(OutputPaths, SelectedOutputPath);
+            }
         }
         private void MoveDownHandler(object parameter)
         {
-            throw new NotImplementedException();
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                Utilities.MoveDownElementInAList(InputPaths, SelectedInputPath);
+            }
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                Utilities.MoveDownElementInAList(OutputPaths, SelectedOutputPath);
+            }
         }
         private void DeleteHandler(object parameter)
         {
-            throw new NotImplementedException();
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                InputPaths.Remove(SelectedInputPath);
+                SelectedInputPath = Properties.Resources.NoSelectionPreviewString;
+                SelectedInputPreview = Properties.Resources.NoSelectionPreviewString;
+            }
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                OutputPaths.Remove(SelectedOutputPath);
+                SelectedOutputPath = Properties.Resources.NoSelectionPreviewString;
+                SelectedOutputPreview = Properties.Resources.NoSelectionPreviewString;
+            }
         }
 
+
+        // CanExecute implementations
+        private bool CanExecuteOverwrite(object parameter)
+        {
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                return !string.IsNullOrEmpty(SelectedInputPreview) && File.Exists(SelectedInputPath);
+            }
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                return !string.IsNullOrEmpty(SelectedOutputPreview) && File.Exists(SelectedOutputPath);
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

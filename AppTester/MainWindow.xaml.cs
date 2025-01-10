@@ -15,5 +15,29 @@ namespace AppTester
             Console.SetOut(new TextBoxWriter(ConsoleOutputTextBox));
             Console.WriteLine(Properties.Resources.WelcomeString);
         }
+
+        private void ListBox_MouseDoubleClick_Input(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is ListBox listBox && listBox.SelectedItem != null)
+            {
+                var viewModel = DataContext as MainViewModel;
+                if (viewModel?.PreviewCommand?.CanExecute("input") == true)
+                {
+                    viewModel.PreviewCommand.Execute("input");
+                }
+            }
+        }
+
+        private void ListBox_MouseDoubleClick_Output(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is ListBox listBox && listBox.SelectedItem != null)
+            {
+                var viewModel = DataContext as MainViewModel;
+                if (viewModel?.PreviewCommand?.CanExecute("output") == true)
+                {
+                    viewModel.PreviewCommand.Execute("output");
+                }
+            }
+        }
     }
 }
