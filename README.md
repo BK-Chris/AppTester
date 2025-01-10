@@ -1,7 +1,25 @@
 # AppTester - A WPF application for Console Applications
 
-AppTester is a Windows Presentation Foundation (WPF) application built with .NET 9 and C#. It is designed to streamline the testing of console applications in a Windows environment. The project consists of two main components:
+AppTester is a Windows Presentation Foundation (WPF) application built with .NET 9 and C#. It is designed to streamline the testing of console applications in a Windows environment.
 
+**Key Features**
+
+- Solution Selection: Add a .sln file which automatically tries to build the solution.
+- Input and Output Pairing: Automatically iterates through input and expected output files in the same order.
+- Execution Feedback: Displays each step in a dedicated log area for transparency.
+- Path Management:
+	- Clickable and selectable paths.
+	- Right-click context menu to delete, move up, or move down paths.
+	- Dynamically update the list of paths.
+
+This application is ideal for developers who want to automate the testing of console applications in a streamlined, Windows-native interface.
+
+
+![Demo 1](./Res/demo_1.png)
+![Demo 2](./Res/demo_2.png)
+![Demo 3](./Res/demo_3.png)
+
+The project consists of two main components:
 >**Core.dll**
 >
 > - Responsible for managing and building .sln solutions.
@@ -15,18 +33,6 @@ AppTester is a Windows Presentation Foundation (WPF) application built with .NET
 > - Features a Run button to execute the console application in the background using the provided inputs.
 > - Redirects Console.Write output to a dedicated textbox for real-time feedback and logs.
 > - Compares actual output with the expected output and provides feedback on the results.
-
-**Key Features**
-
-- Solution Selection: Add a .sln file which automatically tries to build the solution.
-- Input and Output Pairing: Automatically iterates through input and expected output files in the same order.
-- Execution Feedback: Displays each step in a dedicated log area for transparency.
-- Path Management:
-	- Clickable and selectable paths.
-	- Right-click context menu to delete, move up, or move down paths.
-	- Dynamically update the list of paths.
-
-This application is ideal for developers who want to automate the testing of console applications in a streamlined, Windows-native interface.
 
 ---
 
