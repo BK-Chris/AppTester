@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace AppTester.Utils
 {
@@ -28,6 +27,7 @@ namespace AppTester.Utils
 
         public static void MoveUpElementInAList<T>(ObservableCollection<T> list, T element)
         {
+            if (list.Count < 2) return;
             int indexOfItem = list.IndexOf(element);
             if (indexOfItem == -1)
                 throw new ArgumentException($"{element} does not exist in the list.");
@@ -43,12 +43,13 @@ namespace AppTester.Utils
         }
         public static void MoveDownElementInAList<T>(ObservableCollection<T> list, T element)
         {
+            if (list.Count < 2) return;
             int indexOfItem = list.IndexOf(element);
             if (indexOfItem == -1)
                 throw new ArgumentException($"{element} does not exist in the list.");
 
             // If the element is already at the bottom of the list, no need to move
-            if (indexOfItem == list.Count-1)
+            if (indexOfItem == list.Count - 1)
                 return;
 
             // Move the element down by swapping with the next element

@@ -59,6 +59,7 @@
             <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)" Command="{Binding AddFilesCommand}" CommandParameter="input"/>
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder" Command="{Binding AddFolderCommand}" CommandParameter="input"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Empty List" Command="{Binding EmptyListCommand}" CommandParameter="input"/>
             </StackPanel>
             <ListBox Grid.Row="2"
                      ItemsSource="{Binding InputPaths}"
@@ -76,6 +77,7 @@
                         <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}" CommandParameter="input"/>
                         <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}" CommandParameter="input"/>
                         <MenuItem Header="Delete" Command="{Binding DeleteCommand}" CommandParameter="input"/>
+                        <MenuItem Header="Delete All" Command="{Binding EmptyListCommand}" CommandParameter="input"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
@@ -84,7 +86,7 @@
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite"
                         Command="{Binding OverwriteCommand}"
                   CommandParameter="input"/>
-                <TextBox x:Name="PreviewInputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedInputPath}" />
+                <TextBox x:Name="PreviewInputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedPreviewInputPath}" />
             </StackPanel>
             <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}" 
                      Text="{Binding SelectedInputPreview}"/>
@@ -104,6 +106,7 @@
             <StackPanel Grid.Row="1" Orientation="Horizontal">
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add File(s)" Command="{Binding AddFilesCommand}" CommandParameter="output"/>
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Add Folder" Command="{Binding AddFolderCommand}" CommandParameter="output"/>
+                <Button Style="{StaticResource SmallActionButtonStyle}" Content="Empty List" Command="{Binding EmptyListCommand}" CommandParameter="output"/>
             </StackPanel>
             <ListBox Grid.Row="2"
                      ItemsSource="{Binding OutputPaths}"
@@ -121,13 +124,14 @@
                         <MenuItem Header="Move Up" Command="{Binding MoveUpCommand}" CommandParameter="output"/>
                         <MenuItem Header="Move Down" Command="{Binding MoveDownCommand}" CommandParameter="output"/>
                         <MenuItem Header="Delete" Command="{Binding DeleteCommand}" CommandParameter="output"/>
+                        <MenuItem Header="Delete All" Command="{Binding EmptyListCommand}" CommandParameter="output"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
             <StackPanel Grid.Row="3" Orientation="Horizontal">
                 <Label Style="{StaticResource LabelStyle}" Content="Preview" />
                 <Button Style="{StaticResource SmallActionButtonStyle}" Content="Overwrite" Command="{Binding OverwriteCommand}" CommandParameter="output"/>
-                <TextBox x:Name="PreviewOutputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedOutputPath}" />
+                <TextBox x:Name="PreviewOutputPath" Style="{StaticResource PathTextBoxStyle}" Text="{Binding SelectedPreviewOutputPath}" />
             </StackPanel>
             <TextBox Grid.Row="4" Style="{StaticResource PreviewTextBoxStyle}"
                      Text="{Binding SelectedOutputPreview}"/>

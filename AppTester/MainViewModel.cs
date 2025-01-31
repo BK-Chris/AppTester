@@ -11,16 +11,46 @@ namespace AppTester
     public class MainViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+        private string _selectedInputPath = string.Empty;
+        private string _selectedOutputPath = string.Empty;
         private string _selectedSolution = Properties.Resources.SolutionPathString;
-        private string _selectedInputPath = Properties.Resources.NoSelectionPreviewString;
-        private string _selectedOutputPath = Properties.Resources.NoSelectionPreviewString;
+
+        private string _selectedPreviewInputPath = Properties.Resources.NoSelectionPreviewString;
+        private string _selectedPreviewOutputPath = Properties.Resources.NoSelectionPreviewString;
         private string _selectedInputPreviewItem = Properties.Resources.NoSelectionPreviewString;
         private string _selectedOutputPreviewItem = Properties.Resources.NoSelectionPreviewString;
+
+        private ObservableCollection<string> _inputPaths = [];
+        private ObservableCollection<string> _outputPaths = [];
+
         public Solution? SolutionObj;
 
-        public ObservableCollection<string> InputPaths { get; set; }
-        public ObservableCollection<string> OutputPaths { get; set; }
-
+        public ObservableCollection<string> InputPaths
+        {
+            get => _inputPaths;
+            set
+            {
+                if (_inputPaths != value)
+                {
+                    _inputPaths = value;
+                    OnPropertyChanged();
+                    ((RelayCommand)EmptyListCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+        public ObservableCollection<string> OutputPaths
+        {
+            get => _outputPaths;
+            set
+            {
+                if (_outputPaths != value)
+                {
+                    _outputPaths = value;
+                    OnPropertyChanged();
+                    ((RelayCommand)EmptyListCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
         public string SolutionPath
         {
             get => _selectedSolution;
@@ -29,7 +59,7 @@ namespace AppTester
                 if (_selectedSolution != value)
                 {
                     _selectedSolution = value;
-                    OnPropertyChanged(); // Notify the UI about the change
+                    OnPropertyChanged();
                 }
             }
         }
@@ -38,11 +68,14 @@ namespace AppTester
             get => _selectedInputPath;
             set
             {
-                if (_selectedInputPath != value)
-                {
-                    _selectedInputPath = value;
-                    OnPropertyChanged(); // Notify the UI about the change
-                }
+                if (_selectedInputPath == value) return;
+
+                _selectedInputPath = value;
+                OnPropertyChanged();
+                ((RelayCommand)PreviewCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)MoveUpCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)MoveDownCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)DeleteCommand).RaiseCanExecuteChanged();
             }
         }
         public string SelectedOutputPath
@@ -50,10 +83,45 @@ namespace AppTester
             get => _selectedOutputPath;
             set
             {
-                if (_selectedOutputPath != value)
+                if (_selectedOutputPath == value) return;
+
+                _selectedOutputPath = value;
+                OnPropertyChanged();
+                ((RelayCommand)PreviewCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)MoveUpCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)MoveDownCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)DeleteCommand).RaiseCanExecuteChanged();
+            }
+        }
+        public string SelectedPreviewInputPath
+        {
+            get => _selectedPreviewInputPath;
+            set
+            {
+                if (string.IsNullOrEmpty(value))
                 {
-                    _selectedOutputPath = value;
-                    OnPropertyChanged(); // Notify the UI about the change
+                    value = Properties.Resources.NoSelectionPreviewString;
+                }
+                if (_selectedPreviewInputPath != value)
+                {
+                    _selectedPreviewInputPath = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+        public string SelectedPreviewOutputPath
+        {
+            get => _selectedPreviewOutputPath;
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    value = Properties.Resources.NoSelectionPreviewString;
+                }
+                if (_selectedPreviewOutputPath != value)
+                {
+                    _selectedPreviewOutputPath = value;
+                    OnPropertyChanged();
                 }
             }
         }
@@ -65,7 +133,7 @@ namespace AppTester
                 if (_selectedInputPreviewItem != value)
                 {
                     _selectedInputPreviewItem = value;
-                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedInputPreview));
                     ((RelayCommand)OverwriteCommand).RaiseCanExecuteChanged();
                 }
             }
@@ -93,17 +161,16 @@ namespace AppTester
         public ICommand RunTestsCommand { get; }
         public ICommand AddFilesCommand { get; }
         public ICommand AddFolderCommand { get; }
+        public ICommand EmptyListCommand { get; }
         public ICommand OverwriteCommand { get; }
         public ICommand PreviewCommand { get; }
         public ICommand MoveUpCommand { get; }
         public ICommand MoveDownCommand { get; }
         public ICommand DeleteCommand { get; }
+        public ICommand DeleteAllCommand { get; }
 
         public MainViewModel()
         {
-            InputPaths = [];
-            OutputPaths = [];
-
             // Initialize commands
             // TopGrid
             AddSolutionCommand = new RelayCommand(AddSolution);
@@ -112,15 +179,19 @@ namespace AppTester
             // InputGrid and OutputGrid
             AddFilesCommand = new RelayCommand(AddFiles);
             AddFolderCommand = new RelayCommand(AddFolder);
+            EmptyListCommand = new RelayCommand(EmptyList, CanExecuteEmptyList);
             OverwriteCommand = new RelayCommand(OverwritePreview, CanExecuteOverwrite);
 
+
             // List interactions
-            PreviewCommand = new RelayCommand(PreviewHandler);
-            MoveUpCommand = new RelayCommand(MoveUpHandler);
-            MoveDownCommand = new RelayCommand(MoveDownHandler);
-            DeleteCommand = new RelayCommand(DeleteHandler);
+            PreviewCommand = new RelayCommand(PreviewHandler, CanExecutePreview);
+            MoveUpCommand = new RelayCommand(MoveUpHandler, CanExecuteMovement);
+            MoveDownCommand = new RelayCommand(MoveDownHandler, CanExecuteMovement);
+            DeleteCommand = new RelayCommand(DeleteHandler, CanExecuteDelete);
+            DeleteAllCommand = new RelayCommand(EmptyList, CanExecuteEmptyList);
         }
 
+        // TopGrid buttons
         private void AddSolution(object parameter)
         {
             string solutionPath = FileManager.GetFile("sln");
@@ -133,7 +204,6 @@ namespace AppTester
                 SolutionPath = Properties.Resources.SolutionPathString;
             }
         }
-
         private async void RunTests(object parameter)
         {
             try
@@ -165,9 +235,11 @@ namespace AppTester
 
         }
 
+        // InputGrid and OutputGrid buttons
         private void AddFiles(object parameter)
         {
             string[] files = FileManager.GetFiles("txt");
+
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
                 foreach (string file in files)
@@ -183,11 +255,12 @@ namespace AppTester
                     OutputPaths.Add(file);
                 }
             }
+            ((RelayCommand)EmptyListCommand).RaiseCanExecuteChanged();
         }
-
         private void AddFolder(object parameter)
         {
             string[] files = FileManager.GetFilesFromFolder("txt");
+
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
                 foreach (string file in files)
@@ -201,6 +274,28 @@ namespace AppTester
                 foreach (string file in files)
                 {
                     OutputPaths.Add(file);
+                }
+            }
+            ((RelayCommand)EmptyListCommand).RaiseCanExecuteChanged();
+        }
+        private void EmptyList(object parameter)
+        {
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                Console.WriteLine(Properties.Resources.NoSelectionPreviewString);
+                InputPaths = [];
+                if (IsValidSelection(SelectedInputPath))
+                {
+                    SelectedInputPath = string.Empty;
+                }
+            }
+
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                OutputPaths = [];
+                if (IsValidSelection(SelectedOutputPath))
+                {
+                    SelectedOutputPath = string.Empty;
                 }
             }
         }
@@ -216,7 +311,7 @@ namespace AppTester
             }
         }
 
-
+        // List interactions
         private void PreviewHandler(object parameter)
         {
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
@@ -225,6 +320,7 @@ namespace AppTester
                 try
                 {
                     using StreamReader inputFile = new(SelectedInputPath);
+                    SelectedPreviewInputPath = SelectedInputPath;
                     SelectedInputPreview = inputFile.ReadToEnd();
                 }
                 catch (Exception ex)
@@ -232,18 +328,23 @@ namespace AppTester
                     Console.WriteLine(ex.Message);
                 }
             }
-            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
                 Console.WriteLine(SelectedOutputPath);
                 try
                 {
                     using StreamReader outputFile = new(SelectedOutputPath);
+                    SelectedPreviewOutputPath = SelectedOutputPath;
                     SelectedOutputPreview = outputFile.ReadToEnd();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
+            }
+            else
+            {
+                return;
             }
         }
         private void MoveUpHandler(object parameter)
@@ -272,34 +373,113 @@ namespace AppTester
         {
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
-                InputPaths.Remove(SelectedInputPath);
-                SelectedInputPath = Properties.Resources.NoSelectionPreviewString;
-                SelectedInputPreview = Properties.Resources.NoSelectionPreviewString;
+                string? pathToDelete = SelectedInputPath;
+                if (string.IsNullOrEmpty(pathToDelete)) return;
+
+                InputPaths.Remove(pathToDelete);
+                if (pathToDelete.Equals(SelectedPreviewInputPath))
+                {
+                    SelectedInputPath = string.Empty;
+                    SelectedPreviewInputPath = Properties.Resources.NoSelectionPreviewString;
+                    SelectedInputPreview = Properties.Resources.NoSelectionPreviewString;
+                }
             }
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
-                OutputPaths.Remove(SelectedOutputPath);
-                SelectedOutputPath = Properties.Resources.NoSelectionPreviewString;
-                SelectedOutputPreview = Properties.Resources.NoSelectionPreviewString;
+                string? pathToDelete = SelectedOutputPath;
+                if (string.IsNullOrEmpty(pathToDelete)) return;
+
+                OutputPaths.Remove(pathToDelete);
+                if (pathToDelete.Equals(SelectedPreviewOutputPath))
+                {
+                    SelectedOutputPath = string.Empty;
+                    SelectedPreviewOutputPath = Properties.Resources.NoSelectionPreviewString;
+                    SelectedOutputPreview = Properties.Resources.NoSelectionPreviewString;
+                }
             }
         }
-
 
         // CanExecute implementations
         private bool CanExecuteOverwrite(object parameter)
         {
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
-                return !string.IsNullOrEmpty(SelectedInputPreview) && File.Exists(SelectedInputPath);
+                return !string.IsNullOrEmpty(SelectedInputPreview) && File.Exists(SelectedPreviewInputPath);
             }
             else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
-                return !string.IsNullOrEmpty(SelectedOutputPreview) && File.Exists(SelectedOutputPath);
+                return !string.IsNullOrEmpty(SelectedOutputPreview) && File.Exists(SelectedPreviewOutputPath);
             }
             else
             {
                 return false;
             }
+        }
+        private bool CanExecuteEmptyList(object parameter)
+        {
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                return InputPaths.Count > 0;
+            }
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                return OutputPaths.Count > 0;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool CanExecutePreview(object parameter)
+        {
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                return IsValidSelection(SelectedInputPath);
+            }
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                return IsValidSelection(SelectedOutputPath);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool CanExecuteMovement(object parameter)
+        {
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                return InputPaths.Count > 1 && IsValidSelection(SelectedInputPath);
+            }
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                return OutputPaths.Count > 1 && IsValidSelection(SelectedOutputPath);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool CanExecuteDelete(object parameter)
+        {
+            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
+            {
+                return IsValidSelection(SelectedInputPath);
+            }
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            {
+                return IsValidSelection(SelectedOutputPath);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        // Utils
+        private static bool IsValidSelection(string selectedPath)
+        {
+            return !string.IsNullOrEmpty(selectedPath) && !selectedPath.Equals(Properties.Resources.NoSelectionPreviewString);
         }
     }
 }
