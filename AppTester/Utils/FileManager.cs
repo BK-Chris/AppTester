@@ -72,11 +72,11 @@ namespace AppTester.Utils
             }
         }
 
-        public static bool ConfirmOverwrite(string fileToOverwrite)
+        public static bool GetConfirmation(string message, string title)
         {
             MessageBoxResult result = MessageBox.Show(
-                $"Are you sure you want to overwrite {fileToOverwrite}?",
-                "Confirm Overwrite",
+                message,
+                title,
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning
             );
@@ -88,7 +88,7 @@ namespace AppTester.Utils
         {
             if (!File.Exists(filePath))
                 return;
-            if (!ConfirmOverwrite(filePath))
+            if (!GetConfirmation($"Are you sure you want to overwrite {filePath}?", "Confirm Overwrite"))
                 return;
             try
             {

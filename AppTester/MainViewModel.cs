@@ -282,20 +282,21 @@ namespace AppTester
         {
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
-                Console.WriteLine(Properties.Resources.NoSelectionPreviewString);
+                if (!ConfirmDiscardModifications(IOType.Input)) return;
                 InputPaths = [];
                 SelectedInputPath = string.Empty;
                 SelectedPreviewInputPath = Properties.Resources.NoSelectionPreviewString;
                 SelectedInputPreview = Properties.Resources.NoSelectionPreviewString;
             }
-
-            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
+                if (!ConfirmDiscardModifications(IOType.Output)) return;
                 OutputPaths = [];
                 SelectedOutputPath = string.Empty;
                 SelectedPreviewOutputPath = Properties.Resources.NoSelectionPreviewString;
                 SelectedOutputPreview = Properties.Resources.NoSelectionPreviewString;
             }
+            else return;
         }
         private void OverwritePreview(object parameter)
         {
@@ -314,6 +315,7 @@ namespace AppTester
         {
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
+                if (!ConfirmDiscardModifications(IOType.Input)) return;
                 Console.WriteLine(SelectedInputPath);
                 try
                 {
@@ -328,6 +330,7 @@ namespace AppTester
             }
             else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
+                if (!ConfirmDiscardModifications(IOType.Output)) return;
                 Console.WriteLine(SelectedOutputPath);
                 try
                 {
@@ -373,6 +376,7 @@ namespace AppTester
             {
                 string? pathToDelete = SelectedInputPath;
                 if (string.IsNullOrEmpty(pathToDelete)) return;
+                if (!ConfirmDiscardModifications(IOType.Input)) return;
 
                 InputPaths.Remove(pathToDelete);
                 if (pathToDelete.Equals(SelectedPreviewInputPath))
@@ -382,10 +386,11 @@ namespace AppTester
                     SelectedInputPreview = Properties.Resources.NoSelectionPreviewString;
                 }
             }
-            if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
+            else if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
                 string? pathToDelete = SelectedOutputPath;
                 if (string.IsNullOrEmpty(pathToDelete)) return;
+                if (!ConfirmDiscardModifications(IOType.Input)) return;
 
                 OutputPaths.Remove(pathToDelete);
                 if (pathToDelete.Equals(SelectedPreviewOutputPath))
@@ -395,6 +400,7 @@ namespace AppTester
                     SelectedOutputPreview = Properties.Resources.NoSelectionPreviewString;
                 }
             }
+            else return;
         }
 
         // CanExecute implementations
@@ -478,6 +484,52 @@ namespace AppTester
         private static bool IsValidSelection(string selectedPath)
         {
             return !string.IsNullOrEmpty(selectedPath) && !selectedPath.Equals(Properties.Resources.NoSelectionPreviewString);
+        }
+
+        public bool ConfirmDiscardModifications(IOType iOType)
+        {
+            if (iOType == IOType.Input)
+            {
+                // No selection has been made
+                if (SelectedPreviewInputPath == Properties.Resources.NoSelectionPreviewString)
+                    return true;
+                try
+                {
+                    using StreamReader originalFile = new(SelectedPreviewInputPath);
+                    string original = originalFile.ReadToEnd();
+                    if (!SelectedInputPreview.Equals(original))
+                    {
+                        return FileManager.GetConfirmation($"The selected file \"{SelectedPreviewInputPath}\" was modified. Proceeding with this action will dicard any changed made. Continue anyway?", "Warning");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return true;
+            }
+            else if (iOType == IOType.Output)
+            {
+                // No selection has been made
+                if (SelectedPreviewOutputPath == Properties.Resources.NoSelectionPreviewString)
+                    return true;
+                try
+                {
+                    using StreamReader originalFile = new(SelectedPreviewOutputPath);
+                    string original = originalFile.ReadToEnd();
+                    if (!SelectedOutputPreview.Equals(original))
+                    {
+                        return FileManager.GetConfirmation($"The selected file \\\"{SelectedPreviewOutputPath}\\\" was modified. Proceeding with this action will dicard any changed made. Continue anyway?", "Warning");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return true;
+            }
+            else
+                return false;
         }
     }
 }
