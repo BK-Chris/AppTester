@@ -36,14 +36,8 @@ The project consists of two main components:
 
 ---
 
-**Known problems / need to done**
-
-- If an item is deleted from the I/O list, the preview is also reset to default.
-- Option to delete the entire list.
-
 **Future improvements**
 
-- Solving known problems.
 - Implementing disable for Run Tests button based on build success of the choosen solution.
 - More separated styles, including unique disabled button style.
 - Separate class for I/O files to apply DRY principles.
