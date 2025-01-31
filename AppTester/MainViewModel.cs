@@ -179,7 +179,7 @@ namespace AppTester
             // InputGrid and OutputGrid
             AddFilesCommand = new RelayCommand(AddFiles);
             AddFolderCommand = new RelayCommand(AddFolder);
-            EmptyListCommand = new RelayCommand(EmptyList, CanExecuteEmptyList);
+            EmptyListCommand = new RelayCommand(EmptyListHandler, CanExecuteEmptyList);
             OverwriteCommand = new RelayCommand(OverwritePreview, CanExecuteOverwrite);
 
 
@@ -188,7 +188,7 @@ namespace AppTester
             MoveUpCommand = new RelayCommand(MoveUpHandler, CanExecuteMovement);
             MoveDownCommand = new RelayCommand(MoveDownHandler, CanExecuteMovement);
             DeleteCommand = new RelayCommand(DeleteHandler, CanExecuteDelete);
-            DeleteAllCommand = new RelayCommand(EmptyList, CanExecuteEmptyList);
+            DeleteAllCommand = new RelayCommand(EmptyListHandler, CanExecuteEmptyList);
         }
 
         // TopGrid buttons
@@ -278,25 +278,23 @@ namespace AppTester
             }
             ((RelayCommand)EmptyListCommand).RaiseCanExecuteChanged();
         }
-        private void EmptyList(object parameter)
+        private void EmptyListHandler(object parameter)
         {
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Input)
             {
                 Console.WriteLine(Properties.Resources.NoSelectionPreviewString);
                 InputPaths = [];
-                if (IsValidSelection(SelectedInputPath))
-                {
-                    SelectedInputPath = string.Empty;
-                }
+                SelectedInputPath = string.Empty;
+                SelectedPreviewInputPath = Properties.Resources.NoSelectionPreviewString;
+                SelectedInputPreview = Properties.Resources.NoSelectionPreviewString;
             }
 
             if (Utilities.GetIOTypeFromCommandParameter(parameter) == IOType.Output)
             {
                 OutputPaths = [];
-                if (IsValidSelection(SelectedOutputPath))
-                {
-                    SelectedOutputPath = string.Empty;
-                }
+                SelectedOutputPath = string.Empty;
+                SelectedPreviewOutputPath = Properties.Resources.NoSelectionPreviewString;
+                SelectedOutputPreview = Properties.Resources.NoSelectionPreviewString;
             }
         }
         private void OverwritePreview(object parameter)
