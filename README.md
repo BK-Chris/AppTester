@@ -2,7 +2,15 @@
 
 AppTester is a Windows Presentation Foundation (WPF) application built with .NET 9 and C#. It is designed to streamline the testing of console applications in a Windows environment.
 
-**Key Features**
+## How To use
+
+**Important:** The tester assumes that your code expects input, as it works by redirecting the input to the executable.
+
+- Add a solution (.sln) file with the left-top **`Add Solution`** button.
+- Select the `input file(s)` and `expected output file(s)`. Make sure they have .txt extension.
+- Click on the Run Test(s) button positioned on the left-top part of the window.
+
+## Key Features
 
 - Solution Selection: Add a .sln file which automatically tries to build the solution.
 - Input and Output Pairing: Automatically iterates through input and expected output files in the same order.

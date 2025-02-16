@@ -296,7 +296,7 @@ namespace Core
                 Console.WriteLine("The solution does not provide an executable output!");
                 return null;
             }
-            string fileName = SolutionPath[SolutionPath.LastIndexOf('\\')..];
+            string fileName = CsprojPath[CsprojPath.LastIndexOf('\\')..];
             string executablePath = $"{CsprojPath[..(CsprojPath.LastIndexOf('\\') + 1)]}" +
                 $"bin\\Debug\\{FrameworkType}" +
                 $"{fileName[..fileName.LastIndexOf('.')]}.exe";
